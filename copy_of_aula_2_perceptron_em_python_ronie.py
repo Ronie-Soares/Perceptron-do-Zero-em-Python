@@ -806,14 +806,38 @@ print("""
 """)
 print("-"*60)
 
+# Criar dataset para AND
+X_and = np.array([
+[0, 0], # Entrada 1
+[0, 1], # Entrada 2
+[1, 0], # Entrada 3
+[1, 1] # Entrada 4
+])
+
+# Saídas esperadas
+y_and = np.array([0, 0, 0, 1])
+
 perceptron_and_lr05 = Perceptron(learning_rate=0.5, n_iterations=100)
 perceptron_and_lr05.fit(X_and, y_and)
+
+perceptron_and = Perceptron(learning_rate=0.1, n_iterations=100)
+perceptron_and.fit(X_and, y_and)
+
 
 predictions = perceptron_and_lr05.predict(X_and)
 print("Acurácia:", np.mean(predictions == y_and) * 100)
 
-print("Épocas η=0.1:", len(perceptron_and.errors_history))
-print("Épocas η=0.5:", len(perceptron_and_lr05.errors_history))
+epocas = {
+    "η=0.1": len(perceptron_and.errors_history),
+    "η=0.5": len(perceptron_and_lr05.errors_history)
+}
+
+for taxa, valor in epocas.items():
+    print(f"Épocas {taxa}: {valor}")
+
+# escolha dinâmica da menor
+mais_rapido = min(epocas, key=epocas.get)
+print(f"➡ A taxa de aprendizado {mais_rapido} convergiu mais rápido.")
 
 # ======================== RESOLVENDO 02 ===================
 print("\n" + "="*60)
@@ -824,6 +848,7 @@ print("""
 """)
 print("-"*60)
 
+# Criar dataset para NAND
 X_nand = np.array([
     [0,0],
     [0,1],
@@ -831,6 +856,7 @@ X_nand = np.array([
     [1,1]
 ])
 
+# Saídas esperadas
 y_nand = np.array([1,1,1,0])
 
 perceptron_nand = Perceptron(learning_rate=0.1, n_iterations=100)
@@ -842,6 +868,13 @@ print("Acurácia:", np.mean(predictions_nand == y_nand) * 100)
 
 plot_decision_boundary(X_nand, y_nand, perceptron_nand,
                        "Perceptron - Porta NAND")
+
+erros = np.sum(predictions_nand != y_nand)
+
+if erros == 0:
+    print("O modelo aprendeu perfeitamente a função lógica.")
+else:
+    print(f"O modelo ainda cometeu {erros} erros.")
 
 # ======================== RESOLVENDO 03 ===================
 print("\n" + "="*60)
@@ -929,6 +962,21 @@ print("Acurácia:", np.mean(predictions_noise == y_and) * 100)
 
 noise_levels = [0.05, 0.1, 0.2, 0.3]
 
+accuracy = np.mean(predictions_noise == y_and) * 100
+print(f"Nível de ruído: {noise_level}")
+print(f"Acurácia: {accuracy:.2f}%")
+print("\n")
+
+# Usando 75% como valor de impacto
+
+if accuracy == 100:
+    print("✔ O perceptron ainda converge mesmo com ruído baixo nos dados.")
+elif accuracy >= 75:
+    print("⚠ O ruído está começando a impactar a fronteira de decisão.")
+else:
+    print("✘ O nível de ruído está alto demais e o modelo não conseguiu aprender.")
+
+
 # ======================== RESOLVENDO 06 ===================
 print("\n" + "="*60)
 print("""
@@ -978,6 +1026,7 @@ print("""
 """)
 print("-"*60)
 
+# CLasse com L2
 class Perceptron_regularizacao_L2:
   def __init__(self, learning_rate=0.1, n_iterations=100, lambda_l2=0.01):
     self.learning_rate = learning_rate
@@ -1142,11 +1191,13 @@ print("""
  • Implemente e compare
 """)
 print("-"*60)
+# RESPOSTA
 print("""
 Ambos utilizam entradas, pesos, bias e uma combinação linear.
 A principal diferença entre eles está na forma como o erro é
 calculado e utilizado durante o treinamento.
 """)
+# IMPLEMENTAÇÃO
 class Adaline:
     def __init__(self, learning_rate=0.01, n_iterations=100):
         self.lr = learning_rate
@@ -1170,7 +1221,7 @@ adaline = Adaline(
 )
 
 adaline.fit(X_and, y_and)
-
+#RESULTADO
 print("-"*60)
 print("COMPARAÇÃO")
 print("Pesos com Adaline:", adaline.w)
